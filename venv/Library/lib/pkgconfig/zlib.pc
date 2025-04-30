@@ -1,0 +1,13 @@
+prefix=C:/AI_Agent/venv/Library
+exec_prefix=C:/AI_Agent/venv/Library
+libdir=C:/AI_Agent/venv/Library/lib
+sharedlibdir=C:/AI_Agent/venv/Library/lib
+includedir=C:/AI_Agent/venv/Library/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.13
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}
