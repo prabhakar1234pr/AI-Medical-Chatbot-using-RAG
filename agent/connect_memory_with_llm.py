@@ -14,7 +14,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY environment variable not set")
 
-# Initialize LLM
+# Initialize LLM with Groq
 llm = ChatGroq(
     groq_api_key=GROQ_API_KEY,
     model_name="llama3-8b-8192",
@@ -52,7 +52,7 @@ retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 rag_chain = (
     {"context": retriever, "question": RunnablePassthrough()}
     | prompt
-    | llm
+    | llm 
     | StrOutputParser()
 )
 
