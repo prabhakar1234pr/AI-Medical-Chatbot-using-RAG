@@ -1,8 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/build",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "public": true,
+  "framework": "create-react-app",
+  "outputDirectory": "build",
+  "buildCommand": "chmod +x ./node_modules/.bin/react-scripts && npm run build",
+  "installCommand": "npm install",
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ],
+  "env": {
+    "REACT_APP_API_URL": "https://ai-medical-chatbot-using-rag-2.onrender.com"
+  }
 } 
