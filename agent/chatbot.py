@@ -1,4 +1,4 @@
-from langchain_core.prompts import ChatPromptTemplate
+"""from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
 from langchain_core.output_parsers import StrOutputParser
 from langchain_groq import ChatGroq
@@ -35,4 +35,5 @@ while True:
         print("Goodbye! 👋")
         break
     response = chain.invoke({"input": user_input})
-    print(f"Bot: {response}\n")
+    print(f"Bot: {response}\n")"""" 
+

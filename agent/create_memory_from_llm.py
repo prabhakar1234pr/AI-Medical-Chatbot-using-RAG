@@ -2,6 +2,7 @@ from langchain_community.document_loaders import PyPDFLoader, DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
+import os
 
 # Step 1: Load PDFs
 data_path = "data/"
@@ -33,6 +34,10 @@ embedding_model = generate_embeddings()
 
 # Step 4: Store chunks in FAISS
 DB_FAISS_PATH = 'db/faiss_index'
+# Ensure the directory exists
+os.makedirs(DB_FAISS_PATH, exist_ok=True)
 db = FAISS.from_documents(chunks, embedding_model)
-db.save_local(DB_FAISS_PATH)
+# Explicitly name the index
+db.save_local(DB_FAISS_PATH, index_name="index")
+print(f"FAISS index saved to {DB_FAISS_PATH}")
 

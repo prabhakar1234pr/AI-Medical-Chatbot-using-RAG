@@ -43,7 +43,8 @@ prompt = PromptTemplate(
 # Load FAISS vectorstore
 DB_FAISS_PATH = 'db/faiss_index'
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-db = FAISS.load_local(DB_FAISS_PATH, embedding_model,allow_dangerous_deserialization=True)  
+# Explicitly specify the index name
+db = FAISS.load_local(DB_FAISS_PATH, embedding_model, allow_dangerous_deserialization=True, index_name="index")  
 
 # Setup retriever
 retriever = db.as_retriever(search_type="similarity", search_kwargs={"k": 3})
@@ -57,10 +58,10 @@ rag_chain = (
 )
 
 # Run it
-user_query = input("Enter your question: ")
-response = rag_chain.invoke(user_query)
-
-print(f"\nAnswer: {response}")
+if __name__ == "__main__":
+    user_query = input("Enter your question: ")
+    response = rag_chain.invoke(user_query)
+    print(f"\nAnswer: {response}")
 
 
 
