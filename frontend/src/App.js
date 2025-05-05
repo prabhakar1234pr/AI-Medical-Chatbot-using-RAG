@@ -8,7 +8,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiConnected, setApiConnected] = useState(false);
 
-  const API_URL = 'http://localhost:8091';
+  const API_URL = 'https://ai-medical-chatbot-using-rag-2.onrender.com';
 
   // Check API connection on component mount
   useEffect(() => {
