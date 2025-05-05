@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    container_name: careescapes_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - dbdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=careescapes
+      - POSTGRES_USER=pgadmin
+      - POSTGRES_PASSWORD=admin
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: careescapes_pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  dbdata:
+  pgadmin_data:
