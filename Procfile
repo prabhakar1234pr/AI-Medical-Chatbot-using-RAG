@@ -1,1 +1,1 @@
-web: cd api && python -m uvicorn render_server:app --host 0.0.0.0 --port $PORT 
+web: python -m uvicorn render_server:app --host 0.0.0.0 --port $PORT 
