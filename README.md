@@ -1,20 +1,21 @@
-# Medical Knowledge Chatbot
+# CareEscapes Healthcare Platform
 
-A chatbot application that uses RAG (Retrieval-Augmented Generation) to answer medical questions based on the GALE Encyclopedia of Medicine.
+A comprehensive healthcare platform that helps users find clinics, book appointments, and access medical knowledge through an AI-powered chatbot using RAG (Retrieval-Augmented Generation).
 
 ## Project Structure
 
-- `/agent` - Contains the AI agent implementation for the chatbot
-- `/api` - FastAPI backend that connects the frontend to the AI agent
-- `/db` - FAISS vector database storing document embeddings
-- `/data` - Contains the medical encyclopedia PDF
-- `/frontend` - React frontend for the chatbot interface
+- `/agent` - Contains the AI agent implementation for the medical knowledge chatbot
+- `/api` - FastAPI backend that provides database access and chatbot integration
+- `/db` - FAISS vector database storing document embeddings for medical knowledge
+- `/data` - Contains the medical encyclopedia data
+- `/frontend` - React frontend for the platform interface
 
 ## Prerequisites
 
 - Python 3.8+
 - Node.js 14+ and npm
-- Groq API key (stored in .env file)
+- Neon PostgreSQL database
+- Groq API key
 
 ## Setup Instructions
 
@@ -27,10 +28,16 @@ cd <repository-directory>
 
 ### 2. Environment Setup
 
-Create a `.env` file in the root directory with your Groq API key:
+Create a `.env` file in the root directory with your Neon database connection and Groq API key:
 
 ```
-GROQ_API_KEY=your-api-key-here
+# CareEscapes Environment Variables
+
+# Neon PostgreSQL Database
+DB_CONNECTION_STRING=postgresql://username:password@hostname:port/careescapes?sslmode=require
+
+# Add your GROQ API key here
+GROQ_API_KEY=your_groq_api_key
 ```
 
 ### 3. Backend Setup
@@ -56,11 +63,15 @@ npm install
 ### 1. Start the FastAPI Backend
 
 ```bash
+# Option 1: Using the Python script
+python run_api.py
+
+# Option 2: Direct command
 cd api
-uvicorn main:app --reload
+python main.py
 ```
 
-The API server will run at http://localhost:8000
+The API server will run at http://localhost:8092
 
 ### 2. Start the React Frontend
 
@@ -71,15 +82,32 @@ npm start
 
 The frontend will run at http://localhost:3000
 
-## Usage
+## Database Information
 
-1. Open your browser and navigate to http://localhost:3000
-2. Type your medical question in the chat input
-3. The system will retrieve relevant information from the medical encyclopedia and provide an answer
+The application uses a Neon PostgreSQL database with the following tables:
+- users: Stores user account information
+- clinics: Information about healthcare providers
+- services: Medical services offered by clinics
+- doctors: Doctor profiles linked to clinics and services
+- bookings: Appointment bookings made by users
+- reviews: User reviews of clinics and services
+- payments: Payment records for bookings
+- wishlists: User-saved favorite clinics/services
 
 ## API Endpoints
 
 - `GET /` - Check if the API is running
-- `POST /chat` - Send a message to the chatbot
-  - Request body: `{ "message": "your question here" }`
-  - Response: `{ "response": "chatbot answer" }` 
+- `POST /chat` - Send a message to the medical knowledge chatbot
+- `GET /clinics` - Get list of available clinics
+- `GET /clinics/{clinic_id}` - Get details of a specific clinic
+- `GET /clinics/{clinic_id}/services` - Get services offered by a clinic
+- `POST /bookings` - Create a new booking
+- Additional endpoints for user management, doctor information, etc.
+
+## Features
+
+- Medical knowledge chatbot using RAG with FAISS and LangChain
+- Clinic search and filtering
+- Appointment booking and management
+- User profiles and reviews
+- Intent detection for routing user queries 

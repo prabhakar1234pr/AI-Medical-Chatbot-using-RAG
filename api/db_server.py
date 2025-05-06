@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from .routers import clinics, bookings, users
 
@@ -27,7 +32,14 @@ app.include_router(users.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the CareEscapes API"}
+    # Verify database connection string is available
+    db_conn = os.getenv("DB_CONNECTION_STRING", "Not configured")
+    db_status = "Configured" if db_conn != "Not configured" else "Not configured"
+    
+    return {
+        "message": "Welcome to the CareEscapes API",
+        "database_status": db_status
+    }
 
 if __name__ == "__main__":
     uvicorn.run("api.db_server:app", host="0.0.0.0", port=8092, reload=True) 

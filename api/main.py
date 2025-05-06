@@ -4,6 +4,10 @@ from pydantic import BaseModel
 import sys
 import os
 import traceback
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add agent directory to the path to import modules
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
