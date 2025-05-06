@@ -8,7 +8,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiConnected, setApiConnected] = useState(false);
 
-  const API_URL = 'https://ai-medical-chatbot-using-rag-2.onrender.com';
+  // Use environment variable with fallback
+  const API_URL = process.env.REACT_APP_API_URL || 'https://careescapes-api.onrender.com';
+  
+  // Log the API URL being used (helpful for debugging)
+  console.log('Using API URL:', API_URL);
 
   // Check API connection on component mount
   useEffect(() => {
@@ -24,7 +28,7 @@ function App() {
     };
     
     checkApi();
-  }, []);
+  }, [API_URL]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
