@@ -9,7 +9,7 @@ function App() {
   const [apiConnected, setApiConnected] = useState(false);
 
   // Use environment variable with fallback
-  const API_URL = process.env.REACT_APP_API_URL || 'https://careescapes-api.onrender.com';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://ai-medical-chatbot-using-rag.onrender.com';
   
   // Log the API URL being used (helpful for debugging)
   console.log('Using API URL:', API_URL);

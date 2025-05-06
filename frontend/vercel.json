@@ -10,6 +10,6 @@
     { "src": "/.*", "dest": "/index.html" }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://careescapes-api.onrender.com"
+    "REACT_APP_API_URL": "https://ai-medical-chatbot-using-rag.onrender.com"
   }
 } 
