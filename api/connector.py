@@ -9,7 +9,7 @@ from typing import List, Dict, Any, Optional
 import uuid
 
 # Base URL for the API
-BASE_URL = "http://localhost:8092"  # Update this if deployed elsewhere
+BASE_URL = "http://localhost:8092"  # Make sure this includes http://
 
 # ------------------ USER MANAGEMENT ------------------
 
