@@ -1,12 +1,26 @@
 # CareEscapes-AI-ChatBot
 
-A medical chatbot built with Azure OpenAI and LangChain that provides helpful medical information.
+A medical chatbot built with Azure OpenAI and LangChain that provides helpful medical information. This repository contains the chatbot service that will be deployed as a container.
+
+## Architecture
+
+The CareEscapes application consists of three separate components:
+
+1. **Frontend** - Static web application deployed to Azure Static Web Apps
+2. **Backend** - API service deployed to Azure App Service
+3. **Chatbot** - This repository, deployed as a container to Azure Container Instances
+
+The components interact as follows:
+- User interacts with the Frontend
+- Frontend makes API calls to Backend
+- Backend communicates with Chatbot container
+- Results flow back to the user
 
 ## Features
 
-- Interactive medical chatbot
+- AI-powered medical chatbot
 - Conversation memory with Redis
-- RESTful API with FastAPI
+- Simple REST API for backend integration
 - Automatic CI/CD deployment to Azure Container Instances
 
 ## Prerequisites
@@ -14,7 +28,6 @@ A medical chatbot built with Azure OpenAI and LangChain that provides helpful me
 - Python 3.9+
 - Azure OpenAI API access
 - Redis instance (for conversation history)
-- Optional: Azure SQL Database (for booking functionality)
 
 ## Local Setup
 
@@ -33,14 +46,9 @@ A medical chatbot built with Azure OpenAI and LangChain that provides helpful me
 
 3. Create a `.env` file with your credentials (see `.env.example` for reference)
 
-4. Run the chatbot CLI
+4. Run the chatbot CLI for testing
    ```bash
    python -m Agent.chatbot
-   ```
-
-5. Or run the API server
-   ```bash
-   uvicorn main:app --reload
    ```
 
 ## Docker Usage
@@ -67,11 +75,10 @@ A medical chatbot built with Azure OpenAI and LangChain that provides helpful me
     "session_id": "user123"  // Optional, defaults to "default_user"
   }
   ```
-- `GET /bookings`: Get all bookings (requires database connection)
 
 ## Deployment
 
-The chatbot is automatically deployed to Azure Container Instances when changes are pushed to the main branch.
+The chatbot is automatically deployed to Azure Container Instances when changes are pushed to the main branch via GitHub Actions.
 
 ### Required GitHub Secrets
 
@@ -91,7 +98,7 @@ The following secrets need to be set in your GitHub repository:
 
 ### Accessing the Deployed API
 
-The API will be available at:
+The Chatbot API will be available at:
 ```
 http://careescapes-chatbot.[AZURE_REGION].azurecontainer.io:8000
 ``` 

@@ -1,4 +1,4 @@
-name: Build and Deploy Medical Chatbot
+name: Build and Deploy Chatbot Container
 
 on:
   push:
@@ -56,4 +56,4 @@ jobs:
               REDIS_URL=${{ secrets.REDIS_URL }}
     
     - name: Output Container Instance URL
-      run: echo "Deployed to http://careescapes-chatbot.${{ secrets.ACI_REGION }}.azurecontainer.io:8000" 
+      run: echo "Chatbot API deployed to http://careescapes-chatbot.${{ secrets.ACI_REGION }}.azurecontainer.io:8000" 
