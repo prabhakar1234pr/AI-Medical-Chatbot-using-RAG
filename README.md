@@ -84,7 +84,7 @@ The chatbot is automatically deployed to Azure Container Instances when changes 
 
 The following secrets need to be set in your GitHub repository:
 
-- `ACR_LOGIN_SERVER`: Azure Container Registry server URL
+- `ACR_LOGIN_SERVER`: Azure Container Registry server URL (format: `registryname.azurecr.io`)
 - `ACR_USERNAME`: Azure Container Registry username
 - `ACR_PASSWORD`: Azure Container Registry password
 - `AZURE_CREDENTIALS`: Azure service principal credentials JSON
@@ -95,6 +95,8 @@ The following secrets need to be set in your GitHub repository:
 - `AZURE_OPENAI_ENDPOINT`: Azure OpenAI endpoint URL
 - `AZURE_OPENAI_DEPLOYMENT`: Azure OpenAI deployment name
 - `REDIS_URL`: Redis connection URL
+
+> **Note:** Make sure all secrets are properly configured before pushing changes, especially the ACR_LOGIN_SERVER which must be in the format `registryname.azurecr.io`.
 
 ### Accessing the Deployed API
 
