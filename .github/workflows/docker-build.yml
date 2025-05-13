@@ -43,9 +43,15 @@ jobs:
           echo "ACR Server: ${{ secrets.ACR_LOGIN_SERVER }}"
           echo "List available resource groups:"
           az group list --query "[].name" -o tsv
-          echo "Running container creation..."
+          echo "Running container creation with explicit scope..."
+          
+          # Set the resource group explicitly
+          RG="${{ secrets.ACI_RESOURCE_GROUP }}"
+          SUBSCRIPTION="6d8c61e2-99c2-48f5-b703-2239b7182b79"
+          
+          # Create container with explicitly defined resource ID
           az container create \
-            --resource-group "${{ secrets.ACI_RESOURCE_GROUP }}" \
+            --resource-group "$RG" \
             --name "medical-chatbot" \
             --image "${{ secrets.ACR_LOGIN_SERVER }}/medical-chatbot:latest" \
             --registry-login-server "${{ secrets.ACR_LOGIN_SERVER }}" \
