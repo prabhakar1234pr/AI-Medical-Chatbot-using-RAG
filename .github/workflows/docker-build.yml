@@ -1,0 +1,72 @@
+name: Build and Deploy Chatbot Container
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: read  # Required for checkout
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to Azure Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ secrets.ACR_LOGIN_SERVER }}
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.ACR_LOGIN_SERVER }}/medical-chatbot:latest
+    
+    - name: Az CLI login with OIDC
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    
+    - name: Debug info
+      run: |
+        echo "Resource Group: ${{ secrets.ACI_RESOURCE_GROUP }}"
+        echo "ACR Server: ${{ secrets.ACR_LOGIN_SERVER }}"
+        echo "Subscription ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+        echo "Image: ${{ secrets.ACR_LOGIN_SERVER }}/medical-chatbot:latest"
+        az group list --query "[].name" -o tsv
+    
+    - name: Deploy to Azure Container Instance
+      uses: azure/aci-deploy@v1
+      with:
+        resource-group: ${{ secrets.ACI_RESOURCE_GROUP }}
+        dns-name-label: careescapes-chatbot
+        image: ${{ secrets.ACR_LOGIN_SERVER }}/medical-chatbot:latest
+        name: medical-chatbot
+        registry-login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+        registry-username: ${{ secrets.ACR_USERNAME }}
+        registry-password: ${{ secrets.ACR_PASSWORD }}
+        ports: 8000
+        environment-variables: |
+          AZURE_OPENAI_API_KEY=${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_API_VERSION=${{ secrets.AZURE_OPENAI_API_VERSION }}
+          AZURE_OPENAI_ENDPOINT=${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_DEPLOYMENT=${{ secrets.AZURE_OPENAI_DEPLOYMENT }}
+          REDIS_URL=${{ secrets.REDIS_URL }}
+        location: eastus
+    
+    - name: Output Container Instance URL
+      run: echo "Chatbot API deployed to http://careescapes-chatbot.${{ secrets.ACI_REGION }}.azurecontainer.io:8000" 

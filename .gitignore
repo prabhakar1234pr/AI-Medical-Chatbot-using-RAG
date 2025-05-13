@@ -35,4 +35,10 @@ ENV/
 *.swo
 
 # Frontend repository
-medical-chatbot-frontend/ 
+medical-chatbot-frontend/
+
+# Credentials
+*credentials*.json
+*secret*.json
+*token*.json
+*key*.json 
