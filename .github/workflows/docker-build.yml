@@ -39,8 +39,10 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
+          echo "Resource Group: ${{ secrets.ACI_RESOURCE_GROUP }}"
+          echo "Running container creation..."
           az container create \
-            --resource-group ${{ secrets.ACI_RESOURCE_GROUP }} \
+            --resource-group "${{ secrets.ACI_RESOURCE_GROUP }}" \
             --name medical-chatbot \
             --image ${{ secrets.ACR_LOGIN_SERVER }}/medical-chatbot:latest \
             --registry-login-server ${{ secrets.ACR_LOGIN_SERVER }} \
