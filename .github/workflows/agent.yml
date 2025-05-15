@@ -1,0 +1,25 @@
+name: Agent CI/CD
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Agent/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: 'Build and push container'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          
+      - name: Build and Push Docker Image
+        run: |
+          cd Agent
+          docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/agent:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/agent:${{ github.sha }} 
