@@ -1,0 +1,3 @@
+[submodule "careescapes-ml"]
+    path = careescapes-ml
+    url = https://github.com/CareEscapes-AI/careescapes-ml.git 
