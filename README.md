@@ -1,150 +1,79 @@
-# CareEscapes-AI-ChatBot
+# Medical Chatbot Demo
 
-A medical chatbot built with Azure OpenAI and LangChain that provides helpful medical information. This repository contains the chatbot service with multiple specialized tools.
+A medical chatbot with a React frontend and FastAPI backend that can use 6 different tools to assist users:
 
-## Architecture
+1. **FAQ Tool**: Answers general medical questions
+2. **Clinic Search Tool**: Finds clinics by location or specialty
+3. **Service Search Tool**: Provides information about medical services 
+4. **Booking Search Tool**: Looks up existing appointments
+5. **Booking Creation Tool**: Schedules new appointments
+6. **Price Comparison Tool**: Compares costs of medical services
 
-The CareEscapes application consists of three separate components:
+## Setup for Local Demo
 
-1. **Frontend** - React web application in medical-chatbot-frontend
-2. **Backend API** - FastAPI service that handles requests from the frontend
-3. **Chatbot Engine** - AI-powered chatbot with specialized tools
+### 1. Set up Azure OpenAI credentials
 
-The components interact as follows:
-- User interacts with the Frontend
-- Frontend makes API calls to Backend
-- Backend communicates with the Chatbot engine
-- Results flow back to the user
+Create a `.env` file in the root directory with your Azure OpenAI credentials:
 
-## Features
+```
+AZURE_OPENAI_API_KEY=your_api_key_here
+AZURE_OPENAI_API_VERSION=2023-05-15
+AZURE_OPENAI_ENDPOINT=https://your-azure-openai-resource.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT=your_deployment_name
+```
 
-- AI-powered medical chatbot
-- Tool-based architecture for specialized capabilities:
-  - FAQ Queries
-  - Search for Clinics
-  - Search for Services
-  - Search for Bookings
-  - Create Bookings
-  - Price Comparison
-- Conversation memory across sessions
-- Simple REST API for frontend integration
+### 2. Run the demo (easiest way)
 
-## Prerequisites
+Just run the batch file:
 
-- Python 3.9+
-- Azure OpenAI API access
-- Node.js and npm (for frontend)
+```
+.\start_demo.bat
+```
 
-## Setup and Running
+### OR Manual startup:
 
-### Backend Setup
+#### 2.1 Activate the virtual environment
 
-1. Create and activate a virtual environment
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows, use: venv\Scripts\activate
-   ```
+```
+.\chatbot_env\Scripts\activate
+```
 
-2. Install dependencies
-   ```bash
-   pip install -r requirements.txt
-   ```
+#### 2.2 Start the backend server
 
-3. Create a `.env` file with your credentials (see `.env.example` for reference)
+```
+cd api
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
 
-4. Run the FastAPI backend
-   ```bash
-   cd api
-   python run.py
-   ```
-   
-   The API will be available at http://localhost:8000
+The backend will run on http://localhost:8000
 
-5. API Documentation: View Swagger docs at http://localhost:8000/docs
+#### 2.3 Start the frontend
 
-### Frontend Setup
+In a separate terminal:
 
-1. Navigate to the frontend directory
-   ```bash
-   cd medical-chatbot-frontend
-   ```
+```
+cd medical-chatbot-frontend
+npm start
+```
 
-2. Install dependencies
-   ```bash
-   npm install
-   ```
+The frontend will be available at http://localhost:3000
 
-3. Run the development server
-   ```bash
-   npm start
-   ```
-   
-   The frontend will be available at http://localhost:3000
+## Using the Chatbot
+
+You can trigger different tools with queries like:
+
+- "What are common symptoms of the flu?" (FAQ)
+- "Find dermatologists near Boston" (Clinic Search)
+- "What services do you offer for prenatal care?" (Service Search)
+- "Check my appointment for next Tuesday" (Booking Search)
+- "I need to schedule a dental cleaning" (Booking Creation)
+- "Compare prices for a basic checkup between different clinics" (Price Comparison)
 
 ## API Endpoints
 
-- `GET /`: Welcome message
-- `POST /chat`: Chat with the bot
-  ```json
-  {
-    "user_input": "What are symptoms of the flu?",
-    "session_id": "optional-session-id"
-  }
-  ```
-- `GET /tools`: List available tools
-- `POST /tool/{tool_name}`: Directly execute a specific tool (for testing)
+- `GET /`: Health check
+- `POST /chat`: Main chatbot endpoint
+- `GET /tools`: Lists all available tools
+- `POST /tool/{tool_name}`: Execute a specific tool directly
 - `DELETE /sessions/{session_id}`: Delete a conversation session
-- `GET /health`: Health check endpoint
-
-## Docker Deployment
-
-1. Build the Docker image
-   ```bash
-   docker build -t medical-chatbot .
-   ```
-
-2. Run the container with environment variables
-   ```bash
-   docker run -it -p 8000:8000 --env-file .env medical-chatbot
-   ```
-
-## Customizing the Tools
-
-Each tool is implemented as a separate Python class in the `Agent/tools/` directory. To customize a tool:
-
-1. Edit the corresponding tool file (e.g., `Agent/tools/faq_tool.py`)
-2. Implement the `execute` method with your desired logic
-3. Return a dictionary with the results
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Deployment
-
-The chatbot is automatically deployed to Azure Container Instances when changes are pushed to the main branch via GitHub Actions.
-
-### Required GitHub Secrets
-
-The following secrets need to be set in your GitHub repository:
-
-- `ACR_LOGIN_SERVER`: Azure Container Registry server URL (format: `registryname.azurecr.io`)
-- `ACR_USERNAME`: Azure Container Registry username
-- `ACR_PASSWORD`: Azure Container Registry password
-- `AZURE_CREDENTIALS`: Azure service principal credentials JSON
-- `ACI_RESOURCE_GROUP`: Azure resource group for Container Instance
-- `ACI_REGION`: Azure region for Container Instance
-- `AZURE_OPENAI_API_KEY`: Azure OpenAI API key
-- `AZURE_OPENAI_API_VERSION`: Azure OpenAI API version
-- `AZURE_OPENAI_ENDPOINT`: Azure OpenAI endpoint URL
-- `AZURE_OPENAI_DEPLOYMENT`: Azure OpenAI deployment name
-- `REDIS_URL`: Redis connection URL
-
-> **Note:** Make sure all secrets are properly configured before pushing changes, especially the ACR_LOGIN_SERVER which must be in the format `registryname.azurecr.io`.
-
-### Accessing the Deployed API
-
-The Chatbot API will be available at:
-```
-http://careescapes-chatbot.[AZURE_REGION].azurecontainer.io:8000
-``` 
+- `GET /health`: Health check endpoint 

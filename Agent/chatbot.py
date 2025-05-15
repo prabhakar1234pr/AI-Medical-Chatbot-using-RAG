@@ -42,20 +42,34 @@ def detect_intent(user_input: str) -> Tuple[str, Dict[str, Any]]:
         {"role": "user", "content": f"Determine intent for: {user_input}"}
     ]
     
+    print(f"\n--- INTENT DETECTION FOR: '{user_input}' ---")
+    
     response = client.chat.completions.create(
         model=DEPLOYMENT_NAME,
         messages=messages,
         response_format={"type": "json_object"}
     )
     
+    # Print the raw LLM response to see what it's actually deciding
+    raw_response = response.choices[0].message.content
+    print(f"LLM DECISION:\n{raw_response}\n")
+    
     try:
         result = eval(response.choices[0].message.content)
-        return result.get("tool", "faq"), result.get("parameters", {})
-    except:
+        selected_tool = result.get("tool", "faq")
+        params = result.get("parameters", {})
+        print(f"TOOL SELECTED: {selected_tool}")
+        print(f"PARAMETERS: {params}")
+        print(f"--- END INTENT DETECTION ---\n")
+        return selected_tool, params
+    except Exception as e:
         # Fallback to FAQ if parsing fails
+        print(f"ERROR PARSING LLM RESPONSE: {str(e)}")
+        print(f"FALLBACK TO: faq")
+        print(f"--- END INTENT DETECTION ---\n")
         return "faq", {"query": user_input}
 
-def chat_with_bot(user_input: str, conversation_history=None) -> Tuple[str, List[Dict[str, str]]]:
+def chat_with_bot(user_input: str, conversation_history=None) -> Tuple[str, List[Dict[str, str]], str]:
     """Main chatbot function that handles tool routing."""
     if conversation_history is None:
         conversation_history = [
@@ -96,9 +110,9 @@ def chat_with_bot(user_input: str, conversation_history=None) -> Tuple[str, List
     # Add bot response to conversation history
     conversation_history.append({"role": "assistant", "content": reply})
     
-    return reply, conversation_history
+    return reply, conversation_history, tool_name
 
-def get_bot_response(user_input: str, conversation_history=None) -> Tuple[str, List[Dict[str, str]]]:
+def get_bot_response(user_input: str, conversation_history=None) -> Tuple[str, List[Dict[str, str]], str]:
     """Function for API calls to get a response from the chatbot."""
     return chat_with_bot(user_input, conversation_history)
 
@@ -117,7 +131,5 @@ if __name__ == "__main__":
             print("👋 Bye! Take care.")
             break
         
-        reply, conversation_history = chat_with_bot(user_input, conversation_history)
+        reply, conversation_history, tool_name = chat_with_bot(user_input, conversation_history)
         print(f"Bot: {reply}\n")
-
-

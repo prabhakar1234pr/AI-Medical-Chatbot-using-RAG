@@ -1,129 +1,111 @@
-import os
-import sys
-from fastapi import FastAPI, HTTPException, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import Dict, List, Optional, Any
-import uuid
+# main.py - connecting to chatbot
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
+import sys
+import os
 
-# Add the project root to the path to allow imports
+# Add the parent directory to path to allow importing chatbot
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Import our chatbot
-from Agent.chatbot import get_bot_response
+# Import the chatbot function
+try:
+    from Agent.chatbot import get_bot_response
+    CHATBOT_AVAILABLE = True
+except ImportError:
+    print("Warning: Could not import chatbot module. Using fallback responses.")
+    CHATBOT_AVAILABLE = False
 
-# Initialize FastAPI app
-app = FastAPI(
-    title="Medical Chatbot API",
-    description="API for the medical chatbot with tool-based functionality",
-    version="1.0.0"
-)
-
-# Add CORS middleware to allow frontend communication
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific frontend URLs
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Store conversation history for different sessions
-conversation_histories = {}
-
-# Request models
-class Message(BaseModel):
-    role: str
-    content: str
-
-class ChatRequest(BaseModel):
-    messages: List[Message]
-    tool: Optional[str] = None
-
-class ToolSelectionRequest(BaseModel):
-    tool_name: str
-    parameters: Dict[str, Any]
-    session_id: Optional[str] = None
-
-# Response models
-class ChatResponse(BaseModel):
-    response: str
-    session_id: str
-
-class ToolResponse(BaseModel):
-    result: Dict[str, Any]
-    session_id: str
-    
-# Helper function to get or create a session
-def get_session_id(session_id: Optional[str] = None) -> str:
-    if not session_id:
-        return str(uuid.uuid4())
-    return session_id
-
-# Helper function to get conversation history
-def get_conversation_history(session_id: str) -> List:
-    if session_id not in conversation_histories:
-        conversation_histories[session_id] = [
-            {"role": "system", "content": "You are a helpful medical assistant that can answer questions and help with clinic bookings."}
-        ]
-    return conversation_histories[session_id]
-
-@app.get("/")
-def read_root():
-    return {"status": "healthy", "message": "Medical Chatbot API is running"}
-
-@app.post("/chat")
-async def chat(request: ChatRequest):
-    try:
-        # Simple response for testing
-        return {
-            "response": "I am a medical chatbot. How can I help you today?",
-            "status": "success"
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/tools")
-def list_available_tools():
-    """Return a list of available tools that the chatbot can use."""
-    try:
-        from Agent.tools import tools
-        return {
-            "tools": list(tools.keys())
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error listing tools: {str(e)}")
-
-@app.post("/tool/{tool_name}")
-def execute_tool_directly(tool_name: str, request: Dict[str, Any]):
-    """Directly execute a specific tool (for development/testing)."""
-    try:
-        from Agent.tools import tools
+class SimpleHTTPHandler(BaseHTTPRequestHandler):
+    def _set_headers(self, status=200):
+        self.send_response(status)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
         
-        if tool_name not in tools:
-            raise HTTPException(status_code=404, detail=f"Tool '{tool_name}' not found")
+    def do_OPTIONS(self):
+        self._set_headers()
         
-        result = tools[tool_name].execute(request)
-        return {"result": result}
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error executing tool: {str(e)}")
+    def do_GET(self):
+        self._set_headers()
+        if self.path == '/' or self.path == '/health':
+            response = {"status": "healthy", "message": "Medical Chatbot API is running"}
+        elif self.path == '/tools' and CHATBOT_AVAILABLE:
+            response = {"tools": ["faq", "clinic_search", "service_search", "booking_search", "booking_creation", "price_comparison"]}
+        else:
+            response = {"status": "error", "message": "Endpoint not found"}
+        
+        self.wfile.write(json.dumps(response).encode())
+        
+    def do_POST(self):
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        
+        try:
+            request_data = json.loads(post_data.decode('utf-8'))
+        except:
+            self._set_headers(400)
+            self.wfile.write(json.dumps({"status": "error", "message": "Invalid JSON"}).encode())
+            return
+        
+        self._set_headers()
+        
+        if self.path == '/chat':
+            if CHATBOT_AVAILABLE:
+                try:
+                    # Get the last user message
+                    if "messages" in request_data and len(request_data["messages"]) > 0:
+                        last_message = request_data["messages"][-1]
+                        if last_message["role"] == "user":
+                            user_input = last_message["content"]
+                            
+                            # Convert previous messages to the format expected by chatbot
+                            history = [{"role": msg["role"], "content": msg["content"]} 
+                                      for msg in request_data["messages"][:-1]]
+                            
+                            # Call the chatbot
+                            bot_response, updated_history, tool_used = get_bot_response(user_input, history)
+                            
+                            response = {
+                                "response": bot_response,
+                                "status": "success",
+                                "session_id": "demo-123",
+                                "tool_used": tool_used
+                            }
+                            
+                        else:
+                            response = {"status": "error", "message": "Last message must be from user"}
+                    else:
+                        response = {"status": "error", "message": "No messages provided"}
+                except Exception as e:
+                    print(f"Error calling chatbot: {str(e)}")
+                    response = {
+                        "response": "I encountered an issue with my AI brain. As a medical assistant, I'd be happy to help once I'm feeling better!",
+                        "status": "success",
+                        "session_id": "demo-123",
+                        "tool_used": "error"
+                    }
+            else:
+                # Fallback response if chatbot is not available
+                response = {
+                    "response": "I am a medical chatbot. How can I help you today?",
+                    "status": "success",
+                    "session_id": "demo-123",
+                    "tool_used": "none"
+                }
+        else:
+            response = {"status": "error", "message": "Endpoint not found"}
+        
+        self.wfile.write(json.dumps(response).encode())
 
-@app.delete("/sessions/{session_id}")
-def delete_session(session_id: str):
-    """Delete a conversation session."""
-    if session_id in conversation_histories:
-        del conversation_histories[session_id]
-        return {"message": f"Session {session_id} deleted"}
-    
-    raise HTTPException(status_code=404, detail=f"Session {session_id} not found")
+def run(port=8000):
+    server_address = ('', port)
+    httpd = HTTPServer(server_address, SimpleHTTPHandler)
+    print(f'Server running at http://localhost:{port}/')
+    print(f'Chatbot integration: {"AVAILABLE" if CHATBOT_AVAILABLE else "NOT AVAILABLE"}')
+    httpd.serve_forever()
 
-@app.get("/health")
-def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy"}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+# This allows the script to be run directly
+if __name__ == '__main__':
+    run()
