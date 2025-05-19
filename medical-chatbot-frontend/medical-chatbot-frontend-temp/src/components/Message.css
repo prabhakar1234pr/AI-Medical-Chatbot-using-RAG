@@ -1,0 +1,32 @@
+.message {
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.bot {
+  justify-content: flex-start;
+}
+
+.message-content {
+  padding: 0.8rem 1.2rem;
+  border-radius: 18px;
+  max-width: 70%;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.user .message-content {
+  background-color: #3498db;
+  color: white;
+  border-bottom-right-radius: 5px;
+}
+
+.bot .message-content {
+  background-color: #e9eaec;
+  color: #333;
+  border-bottom-left-radius: 5px;
+} 
