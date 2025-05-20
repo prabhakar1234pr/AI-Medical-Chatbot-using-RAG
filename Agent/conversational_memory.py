@@ -16,7 +16,7 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 FAISS_DB_PATH = os.getenv("FAISS_DB_PATH", "db/faiss_index")
 
 if not GROQ_API_KEY:
-    raise EnvironmentError("❌ Missing GROQ_API_KEY in environment variables.")
+    raise EnvironmentError("Missing GROQ_API_KEY in environment variables.")
 
 
 # LLM Initialization 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     while True:
         query = input("You: ").strip()
         if query.lower() in {"exit", "quit"}:
-            print("👋 Exiting chatbot. Stay healthy!")
+            print("Exiting chatbot. Stay healthy!")
             break
 
         try:
